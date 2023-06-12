@@ -69,7 +69,7 @@ async def search_user(ctx, name):
         reduction = match["items"][0]["discount"]["code"] if match["items"][0].get("discount") is not None else "Aucun"
         await ctx.send(f"{first_name} {last_name} ({email}):\n- {item}\n- Tombola: {tombola}\n- Code Promo: {reduction}")
 
-heart = ":heart:"
+heart = ":heart: "
 
 @bot.command()
 async def gbesoindamour(ctx):
