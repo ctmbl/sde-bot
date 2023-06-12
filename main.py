@@ -76,7 +76,8 @@ async def gbesoindamour(ctx):
     await ctx.send(":heart: N'oublie jamais que l'**on t'aime tous très fort** et que tu es le meilleur quoi qu'il arrive !!! :heart:")
 
 @bot.command()
-async def keursurtoi(ctx, name):
+async def keursurtoi(ctx, *args):
+    name = " ".join(list(args))
     await ctx.send(f"{heart * 10}\n hey __**{name}**__, {ctx.author.display_name} t'envoie plein de keur et tout son amour ! \n{heart * 10}")
 
 if __name__ == "__main__":
