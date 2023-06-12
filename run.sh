@@ -8,10 +8,12 @@ NORMAL=$(tput sgr0)
 
 
 # TODO: don't run the command if there is nothinf to stop
-docker stop $(docker ps --all --quiet --filter ancestor=${NAME} --format="{{.ID}}")
+OLD_CONT_ID=$(docker ps --all --quiet --filter name=${NAME} --format="{{.ID}}")
+docker kill $OLD_CONT_ID
+docker container rm $OLD_CONT_ID
 
 docker build -t ${NAME} .
-docker run --rm --interactive --tty --detach\
+docker run --interactive --tty --detach\
     --name ${NAME} \
     ${NAME}:latest
 
