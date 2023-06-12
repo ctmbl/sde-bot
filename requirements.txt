@@ -1,0 +1,3 @@
+discord
+python-dotenv==1.0.0
+helloasso-apiv5==1.0.0
