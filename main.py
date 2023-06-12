@@ -55,6 +55,20 @@ async def sde(ctx):
     samedi = get_guest("SAMEDI SEUL - 8 Juillet")
     await ctx.send(f"- Wk complet: {wk}\n- Vendredi: {vendredi}\n- Samedi: {samedi}\nNous serons donc **{wk + vendredi} le Vendredi et {wk + samedi} le Samedi**.")
 
+@bot.command(name="place")
+async def search_user(ctx, name):
+    response = api.call(f"/v5/organizations/{ORG_SLUG}/forms/Membership/{SUBSCRIPTION_SLUG}/orders", method="GET", params={"userSearchKey" : name})
+    nb_matches = response.json()["pagination"]["totalCount"]
+    await ctx.send(f"Il y a {nb_matches} correspondances pour '{name}'")
+    for match in response.json()["data"]:
+        first_name = match["payer"]["firstName"]
+        last_name = match["payer"]["lastName"]
+        email = match["payer"]["email"]
+        item = match["items"][0]["name"]
+        tombola = "OUI" if match["items"][0].get("options") is not None else "NON"
+        reduction = match["items"][0]["discount"]["code"] if match["items"][0].get("discount") is not None else "Aucun"
+        await ctx.send(f"{first_name} {last_name} ({email}):\n- {item}\n- Tombola: {tombola}\n- Code Promo: {reduction}")
+
 heart = ":heart:"
 
 @bot.command()
