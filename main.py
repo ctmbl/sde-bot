@@ -48,14 +48,14 @@ def get_guest(item):
     return response.json()["pagination"]["totalCount"]
 
 
-@bot.command()
+@bot.command(help="donne les stats du nombre d'adhésions")
 async def sde(ctx):
     wk = get_guest("2 JOURS : Vendredi 7 & Samedi 8 Juillet")
     vendredi = get_guest("VENDREDI SEUL - 7 Juillet")
     samedi = get_guest("SAMEDI SEUL - 8 Juillet")
     await ctx.send(f"- Wk complet: {wk}\n- Vendredi: {vendredi}\n- Samedi: {samedi}\nNous serons donc **{wk + vendredi} le Vendredi et {wk + samedi} le Samedi**.")
 
-@bot.command(name="place")
+@bot.command(name="place", help="affiche les places prises correspondant à un certain nom/prenom/mail donné")
 async def search_user(ctx, name):
     response = api.call(f"/v5/organizations/{ORG_SLUG}/forms/Membership/{SUBSCRIPTION_SLUG}/orders", method="GET", params={"userSearchKey" : name})
     nb_matches = response.json()["pagination"]["totalCount"]
@@ -69,13 +69,21 @@ async def search_user(ctx, name):
         reduction = match["items"][0]["discount"]["code"] if match["items"][0].get("discount") is not None else "Aucun"
         await ctx.send(f"{first_name} {last_name} ({email}):\n- {item}\n- Tombola: {tombola}\n- Code Promo: {reduction}")
 
+@bot.event
+async def on_message(message):
+    if bot.user.mentioned_in(message):
+        commands = ", ".join([cmd.name for cmd in bot.commands])
+        await message.channel.send(f"Voici la liste des commandes existantes, **à préfixer par '{COMMAND_PREFIX}'**:\n{commands}\n\nExemple: '{COMMAND_PREFIX}gbesoindamour'")
+    else:
+        await bot.process_commands(message)
+
 heart = ":heart: "
 
-@bot.command()
+@bot.command(help="te donne de l'amour")
 async def gbesoindamour(ctx):
     await ctx.send(":heart: N'oublie jamais que l'**on t'aime tous très fort** et que tu es le meilleur quoi qu'il arrive !!! :heart:")
 
-@bot.command()
+@bot.command(help="envoie de l'amour aux autres")
 async def keursurtoi(ctx, *args):
     name = " ".join(list(args))
     await ctx.send(f"{heart * 10}\n hey __**{name}**__, {ctx.author.display_name} t'envoie plein de keur et tout son amour ! \n{heart * 10}")
