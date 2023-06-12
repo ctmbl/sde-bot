@@ -53,7 +53,17 @@ async def sde(ctx):
     wk = get_guest("2 JOURS : Vendredi 7 & Samedi 8 Juillet")
     vendredi = get_guest("VENDREDI SEUL - 7 Juillet")
     samedi = get_guest("SAMEDI SEUL - 8 Juillet")
-    await ctx.message.channel.send(f"- Wk complet: {wk}\n- Vendredi: {vendredi}\n- Samedi: {samedi}\nNous serons donc **{wk + vendredi} le Vendredi et {wk + samedi} le Samedi**.")
+    await ctx.send(f"- Wk complet: {wk}\n- Vendredi: {vendredi}\n- Samedi: {samedi}\nNous serons donc **{wk + vendredi} le Vendredi et {wk + samedi} le Samedi**.")
+
+heart = ":heart:"
+
+@bot.command()
+async def gbesoindamour(ctx):
+    await ctx.send(":heart: N'oublie jamais que l'**on t'aime tous très fort** et que tu es le meilleur quoi qu'il arrive !!! :heart:")
+
+@bot.command()
+async def keursurtoi(ctx, name):
+    await ctx.send(f"{heart * 10}\n hey __**{name}**__, {ctx.author.display_name} t'envoie plein de keur et tout son amour ! \n{heart * 10}")
 
 if __name__ == "__main__":
     try:
