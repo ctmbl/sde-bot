@@ -5,6 +5,10 @@ import discord
 from discord.ext import commands
 from helloasso_api import HaApiV5
 
+# Monkey patching issue in HaApiV5
+from patch_HaApiV5 import call as fixed_call
+HaApiV5.call = fixed_call
+
 from dotenv import load_dotenv
 load_dotenv()
 
