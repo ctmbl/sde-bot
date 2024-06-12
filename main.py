@@ -20,8 +20,8 @@ HA_CLIENT_ID = getenv("HA_CLIENT_ID")
 HA_CLIENT_SECRET = getenv("HA_CLIENT_SECRET")
 
 ORG_SLUG = "association-de-l-etang"
-SUBSCRIPTION_SLUG = "adhesion-2023"
-SHOP_SLUG = "boutique-2023"
+SUBSCRIPTION_SLUG = "adhesion-2024"
+#SHOP_SLUG = "boutique-2023" # unused in 2024
 
 # Set up logging
 discord.utils.setup_logging(root=True, level=logging.INFO)
@@ -54,10 +54,8 @@ def get_guest(item):
 
 @bot.command(help="donne les stats du nombre d'adhésions")
 async def sde(ctx):
-    wk = get_guest("2 JOURS : Vendredi 7 & Samedi 8 Juillet")
-    vendredi = get_guest("VENDREDI SEUL - 7 Juillet")
-    samedi = get_guest("SAMEDI SEUL - 8 Juillet")
-    await ctx.send(f"- Wk complet: {wk}\n- Vendredi: {vendredi}\n- Samedi: {samedi}\nNous serons donc **{wk + vendredi} le Vendredi et {wk + samedi} le Samedi**.")
+    samedi = get_guest("Samedi 27 Juillet")
+    await ctx.send(f"\n- Samedi: {samedi}\n")
 
 @bot.command(name="place", help="affiche les places prises correspondant à un certain nom/prenom/mail donné")
 async def search_user(ctx, name):
