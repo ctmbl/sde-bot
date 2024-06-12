@@ -55,7 +55,11 @@ def get_guest(item):
 @bot.command(help="donne les stats du nombre d'adhésions")
 async def sde(ctx):
     samedi = get_guest("Samedi 27 Juillet")
-    await ctx.send(f"\n- Samedi: {samedi}\n")
+    zorgas = "TODO" # TODO
+    artistes = "TODO" # TODO
+    total_money = "TODO" # TODO
+    total_donation = "TODO" # TODO
+    await ctx.send(f"\nSamedi: {samedi}\n- dont code ZORGA24: {zorgas}\n- dont code ARTISTES24: {artistes}\n\nArgent collecté: {total_money}\n- dont Dons: {total_donation}")
 
 @bot.command(name="place", help="affiche les places prises correspondant à un certain nom/prenom/mail donné")
 async def search_user(ctx, name):
@@ -63,13 +67,18 @@ async def search_user(ctx, name):
     nb_matches = response.json()["pagination"]["totalCount"]
     await ctx.send(f"Il y a {nb_matches} correspondances pour '{name}'")
     for match in response.json()["data"]:
-        first_name = match["payer"]["firstName"]
-        last_name = match["payer"]["lastName"]
-        email = match["payer"]["email"]
+        LOGGER.error("%s",match)
+        LOGGER.error("%s",match["items"])
+
+        first_name = match["items"][0]["user"]["firstName"]
+        last_name = match["items"][0]["user"]["lastName"]
+        payer_email = match["payer"]["email"]
         item = match["items"][0]["name"]
         tombola = "OUI" if match["items"][0].get("options") is not None else "NON"
         reduction = match["items"][0]["discount"]["code"] if match["items"][0].get("discount") is not None else "Aucun"
-        await ctx.send(f"{first_name} {last_name} ({email}):\n- {item}\n- Tombola: {tombola}\n- Code Promo: {reduction}")
+        donation = "TODO" # TODO
+        comment = "TODO" # TODO
+        await ctx.send(f"{first_name} {last_name} (email payeur: {payer_email}):\n- {item}\n- Tombola: {tombola}\n- Code Promo: {reduction}\n- Don: {donation}\n- Commentaire: {comment}")
 
 @bot.event
 async def on_message(message):
