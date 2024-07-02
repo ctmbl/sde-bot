@@ -21,7 +21,7 @@ HA_CLIENT_SECRET = getenv("HA_CLIENT_SECRET")
 
 ORG_SLUG = "association-de-l-etang"
 SUBSCRIPTION_SLUG = "adhesion-2024"
-#SHOP_SLUG = "boutique-2023" # unused in 2024
+SHOP_SLUG = "boutique-etang-2024"
 
 # Set up logging
 discord.utils.setup_logging(root=True, level=logging.INFO)
@@ -61,6 +61,18 @@ async def sde(ctx):
     total_money = "TODO" # TODO
     total_donation = "TODO" # TODO
     await ctx.send(f"\nSamedi: {samedi}\n- dont code ZORGA24: {zorgas}\n- dont code ARTISTES24: {artistes}\n\nArgent collecté: {total_money}\n- dont Dons: {total_donation}")
+
+
+@bot.command(name="boutique", help="donne les stats du nombre d'adhésions")
+async def shop(ctx):
+    response = api.call(f"/v5/organizations/{ORG_SLUG}/forms/Shop/{SHOP_SLUG}/items", method="GET", params={"pageSize":"1"})
+    LOGGER.debug("%s", response.json())
+    tshirt_2024 = response.json()["pagination"]["totalCount"]
+    total_amount = "TODO"
+
+    summary = f"- T-shirt: {tshirt_2024}\nArgent collecté: {total_amount}"
+    await ctx.send(f"Boutique:\n{summary}\n\nDétail:\n- S: TODO...")
+
 
 @bot.command(name="place", help="affiche les places prises correspondant à un certain nom/prenom/mail donné")
 async def search_user(ctx, name):
@@ -114,6 +126,7 @@ async def search_user(ctx, name):
         membership_info = f"{first_name} {last_name} (email payeur: {payer_email}):\n- {item}\n- Tombola: {tombola}\n- Code Promo: {reduction}\n"
         await ctx.send(f"{membership_info}\n{additional_infos}")
 
+
 @bot.event
 async def on_message(message):
     if bot.user.mentioned_in(message):
@@ -122,16 +135,19 @@ async def on_message(message):
     else:
         await bot.process_commands(message)
 
+
 heart = ":heart: "
 
 @bot.command(help="te donne de l'amour")
 async def gbesoindamour(ctx):
     await ctx.send(":heart: N'oublie jamais que l'**on t'aime tous très fort** et que tu es le meilleur quoi qu'il arrive !!! :heart:")
 
+
 @bot.command(help="envoie de l'amour aux autres")
 async def keursurtoi(ctx, *args):
     name = " ".join(list(args))
     await ctx.send(f"{heart * 10}\n hey __**{name}**__, {ctx.author.display_name} t'envoie plein de keur et tout son amour ! \n{heart * 10}")
+
 
 if __name__ == "__main__":
     try:
