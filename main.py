@@ -26,6 +26,7 @@ SUBSCRIPTION_SLUG = "adhesion-2024"
 # Set up logging
 discord.utils.setup_logging(root=True, level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+#LOGGER.setLevel(logging.DEBUG)
 
 # Set up the discord bot and its event and loop
 intents = discord.Intents.default()
@@ -63,22 +64,55 @@ async def sde(ctx):
 
 @bot.command(name="place", help="affiche les places prises correspondant à un certain nom/prenom/mail donné")
 async def search_user(ctx, name):
-    response = api.call(f"/v5/organizations/{ORG_SLUG}/forms/Membership/{SUBSCRIPTION_SLUG}/orders", method="GET", params={"userSearchKey" : name})
+    response = api.call(f"/v5/organizations/{ORG_SLUG}/forms/Membership/{SUBSCRIPTION_SLUG}/orders", method="GET", params={"userSearchKey" : name, "withDetails": "true"})
     nb_matches = response.json()["pagination"]["totalCount"]
     await ctx.send(f"Il y a {nb_matches} correspondances pour '{name}'")
     for match in response.json()["data"]:
-        LOGGER.error("%s",match)
-        LOGGER.error("%s",match["items"])
+        LOGGER.debug("Match for %s: %s", name, match)
+        LOGGER.debug("Items for %s: %s", name, match["items"])
+        items = match["items"]
 
-        first_name = match["items"][0]["user"]["firstName"]
-        last_name = match["items"][0]["user"]["lastName"]
+        # Retrieve Membership informations:
+        membership = next(filter(lambda item: item["type"] == "Membership", items), None)
+        if membership is None:
+            LOGGER.error("No membership found in items: %s", items)
+            await ctx.send(f":x: Failed to retrieve informations about {name}")
+            return
+        LOGGER.debug("Found Membership for %s in items: %s", name, membership)
+
+        first_name = membership["user"]["firstName"]
+        last_name = membership["user"]["lastName"]
         payer_email = match["payer"]["email"]
-        item = match["items"][0]["name"]
-        tombola = "OUI" if match["items"][0].get("options") is not None else "NON"
-        reduction = match["items"][0]["discount"]["code"] if match["items"][0].get("discount") is not None else "Aucun"
-        donation = "TODO" # TODO
-        comment = "TODO" # TODO
-        await ctx.send(f"{first_name} {last_name} (email payeur: {payer_email}):\n- {item}\n- Tombola: {tombola}\n- Code Promo: {reduction}\n- Don: {donation}\n- Commentaire: {comment}")
+        item = membership["name"]
+        tombola = "OUI" if membership.get("options") is not None else "NON"
+        reduction = membership["discount"]["code"] if membership.get("discount") is not None else "Aucun"
+
+        # Retrieve additional informations:
+        additional_infos = "Autres informations:\n"
+        donation = next(filter(lambda item: item["type"] == "Donation", items), None)
+        if donation is not None:
+            donation_amount = int(donation["amount"])/100
+            additional_infos += f"- Don: **{donation_amount} €**\n"
+
+        custom_fields = membership["customFields"]
+        mobile_field = next(filter(lambda field: field['name'].startswith("Téléphone"), custom_fields), None)
+        if mobile_field is not None:
+            mobile_answer = mobile_field["answer"]
+            additional_infos += f"- Téléphone: {mobile_answer}\n"
+
+        diet_field = next(filter(lambda field: field['name'].startswith("Précision alimentaire"), custom_fields), None)
+        if diet_field is not None:
+            diet_answer = diet_field["answer"]
+            additional_infos += f'- Régime Alimentaire: "{diet_answer}"\n'
+
+        comment_field = next(filter(lambda field: field['name'].startswith("Un commentaire"), custom_fields), None)
+        if comment_field is not None:
+            comment_answer = comment_field["answer"]
+            additional_infos += f'- Commentaire: "{comment_answer}"\n'
+
+        # Assemble informations
+        membership_info = f"{first_name} {last_name} (email payeur: {payer_email}):\n- {item}\n- Tombola: {tombola}\n- Code Promo: {reduction}\n"
+        await ctx.send(f"{membership_info}\n{additional_infos}")
 
 @bot.event
 async def on_message(message):
